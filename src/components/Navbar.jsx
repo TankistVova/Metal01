@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Navbar.css';
 import logo from '../asset/logo.svg';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const scrollToRegistration = () => {
+    const registrationSection = document.querySelector('.registration');
+    if (registrationSection) {
+      registrationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -24,8 +32,8 @@ const Navbar = () => {
         </ul>
 
         <div className="navbar-right">
-          <button className="login-button">Войти</button>
-          <button className="register-button">Зарегистрироваться</button>
+          <Link to="/login"><button className="login-button">Войти</button></Link>
+          <button className="register-button" onClick={scrollToRegistration}>Зарегистрироваться</button>
         </div>
       </div>
     </nav>

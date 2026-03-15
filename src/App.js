@@ -1,5 +1,12 @@
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import Header from './components/Navbar';
+import Login from './Pages/Login/Login';
+import Register from './Pages/Register/Register';
+import Profile from './Pages/Profile/Profile';
+import Inventory from './Pages/Inventory/Inventory';
+import CreateAptechka from './Pages/CreateAptechka/CreateAptechka.jsx';
+import InviteAccept from './Pages/CreateAptechka/InviteAccept.jsx';
 import Footer from './components/Footer';
 import icon1 from './asset/icons/icon-medkit.png'
 import icon2 from './asset/icons/icon-personal.png'
@@ -19,7 +26,9 @@ import phoneImg1 from './asset/phone/phone.png'
 import phoneContent from './asset/phone/phone-content.png'
 import phoneBangs from './asset/phone/phone-bangs.png'
 import phoneAitContent from './asset/phone/phone-air-content.png'
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import SplashScreen from './components/SplashScreen';
+import { supabase } from './supabaseClient';
 import phoneAirQr from './asset/phone/phone-air-qr.png';
 import messageChatIcon from './asset/icons/message-chat-square.png'
 import pieChartIcon from './asset/icons/icon-pie-chart.png'
@@ -28,7 +37,14 @@ import emailIcon from './asset/icons/icon-mail-reg.png'
 import phoneIcon from './asset/icons/icon-phone-reg.png'
 import logo from './asset/logo.svg'
 
-function App() {
+function HomePage() {
+  const scrollToRegistration = () => {
+    const registrationSection = document.querySelector('.registration');
+    if (registrationSection) {
+      registrationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -61,7 +77,7 @@ function App() {
               <h1>Технологичный Подход<br />К Вашей Аптечке</h1>
               <p>Ваш помощник, который упрощает контроль<br />и организацию медицинских запасов.</p>
               <br/>
-              <button className="btn-primary">Зарегистрироваться</button>
+              <button className="btn-primary" onClick={scrollToRegistration}>Зарегистрироваться</button>
             </div>
             <div className="hero-right">
               <div className="phone-container">
@@ -195,7 +211,7 @@ function App() {
             <div className="benefits-left">
               <h3>Организация аптечки -<br />Ваше здоровье</h3>
               <p>Мы предлагаем удобный в организации и в<br />использовании сервис, который будет всегда у вас<br />под рукой в минуту надобности</p>
-              <button className="btn-primary">Начать использовать</button>
+              <button className="btn-primary" onClick={scrollToRegistration}>Начать использовать</button>
             </div>
             <div className="benefits-right">
               <div className="benefit-item">
@@ -253,6 +269,29 @@ function App() {
 
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <>
+      {loading && <SplashScreen />}
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/inventory" element={<Inventory />} />
+      <Route path="/create-aptechka" element={<CreateAptechka />} />
+      <Route path="/invites" element={<InviteAccept />} />
+    </Routes>
+    </>
   );
 }
 

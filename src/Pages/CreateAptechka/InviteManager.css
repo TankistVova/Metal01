@@ -1,0 +1,201 @@
+.invite-manager-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.invite-manager {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.invite-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.invite-manager-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.btn-close:hover {
+  background: #f0f0f0;
+}
+
+.invite-manager-content {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Секция приглашения */
+.invite-section h3,
+.members-section h3,
+.pending-invites-section h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.invite-input {
+  display: flex;
+  gap: 10px;
+}
+
+.invite-input input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.invite-input input:focus {
+  outline: none;
+  border-color: #00bcd4;
+}
+
+.btn-invite {
+  padding: 12px 20px;
+  background: #00bcd4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-invite:hover:not(:disabled) {
+  background: #00a5bb;
+}
+
+.btn-invite:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Список участников */
+.members-list,
+.invites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.member-item,
+.invite-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.member-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.member-role {
+  font-size: 14px;
+  color: #666;
+}
+
+.invite-email {
+  color: #333;
+  font-weight: 500;
+}
+
+.btn-remove-member,
+.btn-cancel-invite {
+  padding: 8px 16px;
+  background: #ff4757;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.btn-remove-member:hover,
+.btn-cancel-invite:hover {
+  background: #ff3742;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .invite-manager {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .invite-manager-header {
+    padding: 15px 20px;
+  }
+  
+  .invite-manager-content {
+    padding: 20px;
+  }
+  
+  .invite-input {
+    flex-direction: column;
+  }
+  
+  .member-item,
+  .invite-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .btn-remove-member,
+  .btn-cancel-invite {
+    align-self: flex-end;
+  }
+}
