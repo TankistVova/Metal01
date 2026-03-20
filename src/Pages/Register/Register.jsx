@@ -1,39 +1,39 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import logo from '../../asset/logo.svg';
+import eyeIcon from '../../asset/icons/eye.png';
 import '../Login/Login.css';
 
 function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const isFormValid = () => formData.name.trim() !== '' && formData.email.trim() !== '' && formData.password.trim() !== '';
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage('');
-
-    if (password.length < 6) {
+    if (!isFormValid()) return;
+    if (formData.password.length < 6) {
       setMessage('Пароль должен быть минимум 6 символов');
-      setLoading(false);
       return;
     }
-
+    setLoading(true);
+    setMessage('');
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password: password,
-        options: { data: { name, phone } }
+      const { error } = await supabase.auth.signUp({
+        email: formData.email.trim(),
+        password: formData.password,
+        options: { data: { name: formData.name, phone: formData.phone } }
       });
-      
       if (error) throw error;
-      
       setMessage('Регистрация успешна!');
       setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
@@ -44,70 +44,107 @@ function Register() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-form">
-          <h2>Регистрация</h2>
-          <form onSubmit={handleRegister}>
-            <div className="form-group">
-              <label>ФИО</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+    <div className="auth-page">
+      <div className="page-wrapper">
+        <div className="image-side"></div>
+        <div className="auth-container">
+          <div className="form-main">
+            <div className="form-header">
+              <h2 className="form-title">Регистрация</h2>
             </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Телефон</label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+7 (___) ___-__-__"
-              />
-            </div>
-            <div className="form-group">
-              <label>Пароль</label>
-              <div className="password-input">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+
+            <form className="form-fields-container" onSubmit={handleSubmit}>
+              <div className="inputs-group">
+                <div className="fields-group">
+                  <div className="field-wrapper">
+                    <label className="field-label">ФИО</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="field-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="field-wrapper">
+                    <label className="field-label">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="field-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="field-wrapper">
+                    <label className="field-label">Телефон</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="field-input"
+                      placeholder="+7 (___) ___-__-__"
+                    />
+                  </div>
+
+                  <div className="field-wrapper">
+                    <label className="field-label">Пароль</label>
+                    <div className="password-wrapper">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className="field-input password-input"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className={`eye-button ${showPassword ? 'eye-button-active' : ''}`}
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                      >
+                        <img src={eyeIcon} alt="" className="eye-image" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {message && <p className="auth-message">{message}</p>}
+
+              <div className="button-group">
                 <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
+                  type="submit"
+                  className="register-btn"
+                  disabled={!isFormValid() || loading}
+                  style={{ opacity: (!isFormValid() || loading) ? 0.5 : 1, cursor: (!isFormValid() || loading) ? 'not-allowed' : 'pointer' }}
                 >
-                  {showPassword ? '👁️' : '👁️🗨️'}
+                  {loading ? 'Загрузка...' : 'Зарегистрироваться'}
                 </button>
               </div>
+            </form>
+
+            <div className="form-footer">
+              <div className="divider-row">
+                <div className="divider-line"></div>
+                <p className="divider-text">или</p>
+                <div className="divider-line"></div>
+              </div>
+              <div className="login-link-row">
+                Уже есть аккаунт?
+                <span className="login-link" onClick={() => navigate('/login')}>
+                  Войти
+                </span>
+              </div>
             </div>
-            <div className="form-actions">
-              <button type="submit" className="btn-login" disabled={loading}>
-                {loading ? 'Загрузка...' : 'Зарегистрироваться'}
-              </button>
-            </div>
-          </form>
-          {message && <p className="message">{message}</p>}
-          <p className="toggle-text">
-            Уже есть аккаунт? <span onClick={() => navigate('/login')}>Войти</span>
-          </p>
+          </div>
         </div>
-      </div>
-      <div className="login-right">
-        <img src={logo} alt="Logo" />
       </div>
     </div>
   );

@@ -1,43 +1,37 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import logo from '../../asset/logo.svg';
+import eyeIcon from '../../asset/icons/eye.png';
 import './Login.css';
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const isFormValid = () => formData.email.trim() !== '' && formData.password.trim() !== '';
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isFormValid()) return;
     setLoading(true);
     setMessage('');
-
-    if (!email || !password) {
-      setMessage('Заполните все поля');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ 
-        email: email.trim(), 
-        password: password 
+      const { error } = await supabase.auth.signInWithPassword({
+        email: formData.email.trim(),
+        password: formData.password
       });
-      
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          throw new Error('Неверный email или пароль');
-        }
-        throw error;
+        throw new Error(error.message.includes('Invalid login credentials') ? 'Неверный email или пароль' : error.message);
       }
-      
-      setMessage('Вход выполнен успешно!');
-      setTimeout(() => navigate('/profile'), 1000);
+      setTimeout(() => navigate('/profile'), 500);
     } catch (error) {
       setMessage(error.message || 'Ошибка входа');
     } finally {
@@ -46,59 +40,88 @@ function Login() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-form">
-          <h2>Вход</h2>
-          <form onSubmit={handleLogin}>
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+    <div className="auth-page">
+      <div className="page-wrapper">
+        <div className="image-side"></div>
+        <div className="auth-container">
+          <div className="form-main">
+            <div className="form-header">
+              <h2 className="form-title">Вход в аккаунт</h2>
             </div>
-            <div className="form-group">
-              <label>Пароль</label>
-              <div className="password-input">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+
+            <form className="form-fields-container" onSubmit={handleSubmit}>
+              <div className="inputs-group">
+                <div className="fields-group">
+                  <div className="field-wrapper">
+                    <label className="field-label">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="field-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="field-wrapper">
+                    <label className="field-label">Пароль</label>
+                    <div className="password-wrapper">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className="field-input password-input"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className={`eye-button ${showPassword ? 'eye-button-active' : ''}`}
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                      >
+                        <img src={eyeIcon} alt="" className="eye-image" />
+                      </button>
+                    </div>
+                    <div className="link-wrapper">
+                      <span className="link" onClick={() => navigate('/forgotPasswordEmail')}>
+                        Забыли пароль?
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {message && <p className="auth-message">{message}</p>}
+
+              <div className="button-group">
                 <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
+                  type="submit"
+                  className="register-btn"
+                  disabled={!isFormValid() || loading}
+                  style={{ opacity: (!isFormValid() || loading) ? 0.5 : 1, cursor: (!isFormValid() || loading) ? 'not-allowed' : 'pointer' }}
                 >
-                  {showPassword ? '👁️' : '👁️🗨️'}
+                  {loading ? 'Загрузка...' : 'Войти'}
                 </button>
               </div>
-            </div>
-            <div className="form-actions">
-              <button type="submit" className="btn-login" disabled={loading}>
-                {loading ? 'Загрузка...' : 'Войти'}
-              </button>
-            </div>
-          </form>
-          {message && <p className="message">{message}</p>}
-          <div className="social-login">
-            <p>Войти с помощью</p>
-            <div className="social-buttons">
-              <button className="social-btn google">🔍</button>
-              <button className="social-btn vk">VK</button>
+            </form>
+
+            <div className="form-footer">
+              <div className="divider-row">
+                <div className="divider-line"></div>
+                <p className="divider-text">или</p>
+                <div className="divider-line"></div>
+              </div>
+              <div className="login-link-row">
+                Нет аккаунта?
+                <span className="login-link" onClick={() => navigate('/register')}>
+                  Зарегистрироваться
+                </span>
+              </div>
             </div>
           </div>
-          <p className="toggle-text">
-            Нет аккаунта? <span onClick={() => navigate('/register')}>Зарегистрироваться</span>
-          </p>
         </div>
-      </div>
-      <div className="login-right">
-        <img src={logo} alt="Logo" />
       </div>
     </div>
   );

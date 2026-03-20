@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import './InviteAccept.css';
+import LoadingScreen from '../../components/LoadingScreen';
 
 const InviteAccept = () => {
   const [invites, setInvites] = useState([]);
@@ -116,9 +117,7 @@ const InviteAccept = () => {
     return avatarMap[avatar] || '🏠';
   };
 
-  if (loading) {
-    return <div className="invite-accept-loading">Загрузка...</div>;
-  }
+  if (loading) return <LoadingScreen />;
 
   if (invites.length === 0 && notifications.length === 0) {
     return (

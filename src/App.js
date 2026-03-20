@@ -1,12 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import Header from './components/Navbar';
-import Login from './Pages/Login/Login';
-import Register from './Pages/Register/Register';
-import Profile from './Pages/Profile/Profile';
-import Inventory from './Pages/Inventory/Inventory';
-import CreateAptechka from './Pages/CreateAptechka/CreateAptechka.jsx';
-import InviteAccept from './Pages/CreateAptechka/InviteAccept.jsx';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import Profile from './pages/Profile/Profile';
+import Inventory from './pages/Inventory/Inventory';
+import CreateAptechka from './pages/CreateAptechka/CreateAptechka.jsx';
+import InviteAccept from './pages/CreateAptechka/InviteAccept.jsx';
 import Footer from './components/Footer';
 import icon1 from './asset/icons/icon-medkit.png'
 import icon2 from './asset/icons/icon-personal.png'

@@ -4,6 +4,7 @@ import { supabase } from '../../supabaseClient';
 import AuthHeader from '../../components/AuthHeader';
 import Footer from '../../components/Footer';
 import './Profile.css';
+import LoadingScreen from '../../components/LoadingScreen';
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -60,7 +61,7 @@ function Profile() {
     }
   };
 
-  if (loading) return <div className="loading">Загрузка...</div>;
+  if (loading) return <LoadingScreen />;
 
   return (
     <>

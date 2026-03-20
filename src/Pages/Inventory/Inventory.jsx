@@ -4,6 +4,7 @@ import { supabase } from '../../supabaseClient';
 import AuthHeader from '../../components/AuthHeader';
 import Footer from '../../components/Footer';
 import './Inventory.css';
+import LoadingScreen from '../../components/LoadingScreen';
 import phoneImg from '../../asset/phone/phone.png';
 import phoneContent from '../../asset/phone/phone-content.png';
 import phoneAirContent from '../../asset/phone/phone-air-content.png';
@@ -18,36 +19,36 @@ import pullIcon from '../../asset/icons/Pull.png';
 import penIcon from '../../asset/icons/Pen.png';
 import crownIcon from '../../asset/icons/crown.png';
 
+const CATEGORIES = [
+  { value: 'all', label: 'Все' },
+  { value: 'fever', label: 'Жаропонижающие' },
+  { value: 'antiviral', label: 'Противовирусные' },
+  { value: 'pain', label: 'Обезболивающие' },
+  { value: 'allergy', label: 'Противоаллергическое' },
+  { value: 'vitamins', label: 'Витамины и минералы' },
+  { value: 'antistress', label: 'Психотропные' },
+];
+
 function Inventory() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [aptechkas, setAptechkas] = useState([]);
   const [selectedKit, setSelectedKit] = useState(null);
-  const [kitMembers, setKitMembers] = useState([]);
   const [medicines, setMedicines] = useState([]);
-  const [hoveredMedicine, setHoveredMedicine] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [kitMembers, setKitMembers] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showMenu, setShowMenu] = useState(null);
   const [newMedicine, setNewMedicine] = useState({
-    name: '',
-    dose: '',
-    quantity: 1,
-    icon: '💊',
-    category: 'cold',
-    expiry_date: '',
-    image: null
+    name: '', dose: '', quantity: 1, icon: '💊', category: 'pain', expiry_date: '', image: null
   });
   const [showIntro, setShowIntro] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
+  const [typedText, setTypedText] = useState('');
   const navigate = useNavigate();
 
   const avatarIcons = {
-    home: homeIcon,
-    travel: globeIcon,
-    kids: babyIcon,
-    car: carIcon,
-    work: homeIcon,
-    sport: globeIcon
+    home: homeIcon, travel: globeIcon, kids: babyIcon, car: carIcon, work: homeIcon, sport: globeIcon
   };
 
   useEffect(() => {
@@ -59,239 +60,135 @@ function Inventory() {
 
   useEffect(() => {
     if (showIntro) {
+      const fullText = 'Все лекарства в одном месте — Инвентарь';
+      let i = 0;
+      const typeTimer = setInterval(() => {
+        setTypedText(fullText.slice(0, i + 1));
+        i++;
+        if (i >= fullText.length) clearInterval(typeTimer);
+      }, 50);
       const timer = setTimeout(() => {
         setFadeOut(true);
         setTimeout(() => {
           setShowIntro(false);
           localStorage.setItem('inventoryIntroShown', Date.now().toString());
         }, 500);
-      }, 3000);
-      return () => clearTimeout(timer);
+      }, 4000);
+      return () => { clearTimeout(timer); clearInterval(typeTimer); };
     }
   }, [showIntro]);
 
   useEffect(() => {
-    if (selectedKit) {
-      loadMedicines(selectedKit);
-      loadKitMembers(selectedKit);
-    }
+    if (selectedKit) { loadMedicines(selectedKit); loadKitMembers(selectedKit); }
   }, [selectedKit]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      navigate('/login');
-    } else {
-      setUser(user);
-      await loadAptechkas(user.id);
-      
-      const lastShown = localStorage.getItem('inventoryIntroShown');
-      const oneDayInMs = 24 * 60 * 60 * 1000;
-      if (lastShown && Date.now() - parseInt(lastShown) < oneDayInMs) {
-        setShowIntro(false);
-      }
-    }
+    if (!user) { navigate('/login'); return; }
+    setUser(user);
+    await loadAptechkas(user.id);
+
     setLoading(false);
   };
 
   const loadMedicines = async (aptechkaId) => {
-    const { data, error } = await supabase
-      .from('medicines')
-      .select('*')
-      .eq('aptechka_id', aptechkaId);
-    
-    if (error) {
-      console.error('Ошибка загрузки лекарств:', error);
-    } else {
-      setMedicines(data || []);
+    const { data, error } = await supabase.from('medicines').select('*').eq('aptechka_id', aptechkaId);
+    if (!error) setMedicines(data || []);
+  };
+
+  const loadAptechkas = async (userId) => {
+    const { data: owned } = await supabase.from('aptechkas').select('*').eq('owner_id', userId);
+    const { data: memberRows } = await supabase.from('aptechka_members').select('aptechka_id').eq('user_id', userId);
+    let shared = [];
+    if (memberRows?.length) {
+      const ids = memberRows.map(m => m.aptechka_id);
+      const { data } = await supabase.from('aptechkas').select('*').in('id', ids).neq('owner_id', userId);
+      shared = data || [];
     }
+    const all = [...(owned || []), ...shared];
+    setAptechkas(all);
+    if (all.length > 0) setSelectedKit(all[0].id);
   };
 
   const handleAddMedicine = async (e) => {
     e.preventDefault();
     if (!selectedKit) return;
-
     let imageUrl = null;
     if (newMedicine.image) {
       const fileExt = newMedicine.image.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('medicine-images')
-        .upload(fileName, newMedicine.image, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) {
-        console.error('Ошибка загрузки фото:', uploadError);
-        alert(`Ошибка загрузки фото: ${uploadError.message}`);
-      } else {
-        const { data } = supabase.storage
-          .from('medicine-images')
-          .getPublicUrl(fileName);
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('medicine-images').upload(fileName, newMedicine.image, { cacheControl: '3600', upsert: false });
+      if (!uploadError) {
+        const { data } = supabase.storage.from('medicine-images').getPublicUrl(fileName);
         imageUrl = data.publicUrl;
       }
     }
-
-    const { error } = await supabase
-      .from('medicines')
-      .insert([{
-        aptechka_id: selectedKit,
-        name: newMedicine.name,
-        dose: newMedicine.dose,
-        quantity: newMedicine.quantity,
-        icon: newMedicine.icon,
-        category: newMedicine.category,
-        expiry_date: newMedicine.expiry_date || null,
-        image_url: imageUrl
-      }]);
-
-    if (error) {
-      console.error('Ошибка добавления лекарства:', error);
-      alert('Ошибка при добавлении лекарства');
-    } else {
-      setNewMedicine({ name: '', dose: '', quantity: 1, icon: '💊', category: 'cold', expiry_date: '', image: null });
+    const { error } = await supabase.from('medicines').insert([{
+      aptechka_id: selectedKit, name: newMedicine.name, dose: newMedicine.dose,
+      quantity: newMedicine.quantity, icon: newMedicine.icon, category: newMedicine.category,
+      expiry_date: newMedicine.expiry_date || null, image_url: imageUrl
+    }]);
+    if (!error) {
+      setNewMedicine({ name: '', dose: '', quantity: 1, icon: '💊', category: 'pain', expiry_date: '', image: null });
       setShowAddForm(false);
       loadMedicines(selectedKit);
     }
   };
 
-  const loadAptechkas = async (userId) => {
-    // Загружаем аптечки, где пользователь владелец
-    const { data: ownedAptechkas, error: ownedError } = await supabase
-      .from('aptechkas')
-      .select('*')
-      .eq('owner_id', userId);
-    
-    // Загружаем аптечки, где пользователь участник
-    const { data: memberAptechkas, error: memberError } = await supabase
-      .from('aptechka_members')
-      .select('aptechka_id')
-      .eq('user_id', userId);
-    
-    if (memberError) {
-      console.error('Ошибка загрузки участия:', memberError);
-    }
-    
-    // Загружаем данные аптечек, где участник
-    let sharedAptechkas = [];
-    if (memberAptechkas && memberAptechkas.length > 0) {
-      const aptechkaIds = memberAptechkas.map(m => m.aptechka_id);
-      const { data, error } = await supabase
-        .from('aptechkas')
-        .select('*')
-        .in('id', aptechkaIds)
-        .neq('owner_id', userId); // Исключаем те, где уже владелец
-      
-      if (!error) {
-        sharedAptechkas = data || [];
-      }
-    }
-    
-    if (ownedError) {
-      console.error('Ошибка загрузки аптечек:', ownedError);
-    } else {
-      const allAptechkas = [...(ownedAptechkas || []), ...sharedAptechkas];
-      setAptechkas(allAptechkas);
-      if (allAptechkas.length > 0) {
-        setSelectedKit(allAptechkas[0].id);
-      }
-    }
-  };
-
   const loadKitMembers = async (aptechkaId) => {
-    const { data: aptechka } = await supabase
-      .from('aptechkas')
-      .select('owner_id, owner_name')
-      .eq('id', aptechkaId)
-      .single();
-    
-    if (aptechka?.owner_id) {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      const allMembers = [];
-      
-      if (user?.id === aptechka.owner_id) {
-        allMembers.push({
-          id: user.id,
-          full_name: user.user_metadata?.name || user.email?.split('@')[0] || 'Владелец',
-          avatar_url: user.user_metadata?.avatar_url,
-          is_owner: true
-        });
-      } else {
-        allMembers.push({
-          id: aptechka.owner_id,
-          full_name: aptechka.owner_name || 'Владелец',
-          avatar_url: null,
-          is_owner: true
-        });
-      }
-      
-      const { data: members } = await supabase
-        .from('aptechka_members')
-        .select('user_id')
-        .eq('aptechka_id', aptechkaId);
-      
-      if (members && members.length > 0) {
-        members.forEach((m, idx) => {
-          if (m.user_id !== aptechka.owner_id) {
-            const isCurrentUser = user?.id === m.user_id;
-            allMembers.push({
-              id: m.user_id,
-              full_name: isCurrentUser ? (user.user_metadata?.name || user.email?.split('@')[0] || 'Я') : `Участник ${idx + 1}`,
-              avatar_url: isCurrentUser ? user.user_metadata?.avatar_url : null,
-              is_owner: false
-            });
-          }
-        });
-      }
-      
-      setKitMembers(allMembers);
+    const { data: aptechka } = await supabase.from('aptechkas').select('owner_id, owner_name').eq('id', aptechkaId).single();
+    if (!aptechka?.owner_id) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    const allMembers = [];
+    if (user?.id === aptechka.owner_id) {
+      allMembers.push({ id: user.id, full_name: user.user_metadata?.name || user.email?.split('@')[0] || 'Владелец', avatar_url: user.user_metadata?.avatar_url, is_owner: true });
+    } else {
+      allMembers.push({ id: aptechka.owner_id, full_name: aptechka.owner_name || 'Владелец', avatar_url: null, is_owner: true });
     }
+    const { data: members } = await supabase.from('aptechka_members').select('user_id').eq('aptechka_id', aptechkaId);
+    if (members?.length) {
+      members.forEach((m, idx) => {
+        if (m.user_id !== aptechka.owner_id) {
+          const isMe = user?.id === m.user_id;
+          allMembers.push({ id: m.user_id, full_name: isMe ? (user.user_metadata?.name || 'Я') : `Участник ${idx + 1}`, avatar_url: isMe ? user.user_metadata?.avatar_url : null, is_owner: false });
+        }
+      });
+    }
+    setKitMembers(allMembers);
   };
 
   const handleDeleteMedicine = async (medicineId) => {
     if (!window.confirm('Удалить это лекарство?')) return;
-    
-    const { error } = await supabase
-      .from('medicines')
-      .delete()
-      .eq('id', medicineId);
-    
-    if (error) {
-      console.error('Ошибка удаления:', error);
-      alert('Ошибка при удалении лекарства');
-    } else {
-      setShowMenu(null);
-      loadMedicines(selectedKit);
-    }
+    const { error } = await supabase.from('medicines').delete().eq('id', medicineId);
+    if (!error) { setShowMenu(null); loadMedicines(selectedKit); }
   };
 
   const handleDeleteAptechka = async (aptechkaId) => {
-    if (!window.confirm('Удалить эту аптечку? Все лекарства будут удалены.')) return;
-    
-    const { error } = await supabase
-      .from('aptechkas')
-      .delete()
-      .eq('id', aptechkaId);
-    
-    if (error) {
-      console.error('Ошибка удаления:', error);
-      alert('Ошибка при удалении аптечки');
-    } else {
-      await loadAptechkas(user.id);
-    }
+    if (!window.confirm('Удалить эту аптечку?')) return;
+    const { error } = await supabase.from('aptechkas').delete().eq('id', aptechkaId);
+    if (!error) await loadAptechkas(user.id);
   };
 
-  if (loading) return <div className="loading">Загрузка...</div>;
+  const filteredMedicines = activeCategory === 'all'
+    ? medicines
+    : medicines.filter(m => m.category === activeCategory);
+
+  const selectedKitName = aptechkas.find(k => k.id === selectedKit)?.name || 'Аптечка';
+
+  if (loading) return <LoadingScreen />;
 
   if (showIntro) {
+    const bubbles = ['💊', '🩺', '💉', '🩹', '🌡️', '💊', '🩹', '💉'];
     return (
       <div className={`inventory-intro ${fadeOut ? 'fade-out' : ''}`}>
+        <div className="intro-bubbles">
+          {bubbles.map((b, i) => (
+            <span key={i} className="intro-bubble" style={{'--i': i}}>{b}</span>
+          ))}
+        </div>
         <div className="intro-content">
           <div className="intro-left">
-            <h1>Все лекарства в одном месте - Инвентарь</h1>
+            <h1>{typedText}<span className="intro-cursor">|</span></h1>
             <p>Здесь вы сможете проводить инвентаризацию, добавлять новые лекарства и аптечки, а также редактировать их.</p>
           </div>
           <div className="intro-right">
@@ -312,173 +209,135 @@ function Inventory() {
     <>
       <AuthHeader />
       <div className="inventory-page">
-        <div className="inventory-container">
-          <div className="inventory-header">
-            <div className="section-label">Ваши аптечки</div>
-          </div>
-
-          <div className="kits-tabs">
+        {/* Левая панель */}
+        <aside className="inventory-sidebar">
+          <h3 className="sidebar-title">Аптечки</h3>
+          <ul className="sidebar-list">
             {aptechkas.map(kit => (
-              <div key={kit.id} className="kit-tab-wrapper">
-                <button
-                  className={`kit-tab ${selectedKit === kit.id ? 'active' : ''}`}
-                  onClick={() => setSelectedKit(kit.id)}
-                >
-                  <span className="kit-icon">
-                    <img src={avatarIcons[kit.avatar] || homeIcon} alt={kit.name} />
-                  </span>
-                  <span className="kit-name">{kit.name}</span>
+              <li key={kit.id} className={`sidebar-item ${selectedKit === kit.id ? 'active' : ''}`}>
+                <button className="sidebar-btn" onClick={() => setSelectedKit(kit.id)}>
+                  <img src={avatarIcons[kit.avatar] || homeIcon} alt="" className="sidebar-icon" />
+                  {kit.name}
                 </button>
-                <button className="kit-delete" onClick={() => handleDeleteAptechka(kit.id)}>×</button>
-              </div>
+                <button className="sidebar-delete" onClick={() => handleDeleteAptechka(kit.id)}>×</button>
+              </li>
             ))}
-            <button className="kit-tab-add" onClick={() => navigate('/create-aptechka')}>
-              <span className="add-icon">+</span>
-            </button>
-          </div>
+            <li className="sidebar-item sidebar-add" onClick={() => navigate('/create-aptechka')}>
+              <span>+</span> Добавить аптечку
+            </li>
+          </ul>
+        </aside>
 
-          <div className="medicines-section">
-            <div className="section-header">
-              <div className="header-left">
-                <h2>{aptechkas.find(k => k.id === selectedKit)?.name || 'Аптечка'}</h2>
-                <div className="kit-members">
-                  {kitMembers.map(member => (
-                    <div key={member.id} className="member-avatar" title={member.full_name}>
-                      {member.avatar_url ? (
-                        <img src={member.avatar_url} alt={member.full_name} />
-                      ) : (
-                        <div className="avatar-placeholder">{member.full_name?.[0] || '?'}</div>
-                      )}
-                      {member.is_owner && <img src={crownIcon} alt="Owner" className="owner-crown" />}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <button className="btn-sort">Сортировать</button>
-            </div>
-
-            <div className="medicines-list">
-              {medicines.map(med => (
-                <div 
-                  key={med.id} 
-                  className="medicine-card"
-                  onMouseEnter={() => setHoveredMedicine(med)}
-                  onMouseLeave={() => setHoveredMedicine(null)}
-                >
-                  {med.image_url ? (
-                    <img src={med.image_url} alt={med.name} className="medicine-image" />
-                  ) : (
-                    <div className="medicine-icon">{med.icon}</div>
-                  )}
-                  <div className="medicine-info">
-                    <h3>{med.name}</h3>
-                    <p>{med.dose} | <span className="quantity-badge"><img src={pullIcon} alt="" className="pull-icon" /> {med.quantity} шт</span></p>
-                  </div>
-                  <div className="medicine-actions">
-                    <button className="btn-edit" onClick={() => setShowMenu(showMenu === med.id ? null : med.id)}>
-                      <img src={penIcon} alt="Edit" />
-                    </button>
-                    {showMenu === med.id && (
-                      <div className="action-menu">
-                        <button onClick={() => alert('Редактирование в разработке')}>Редактировать</button>
-                        <button onClick={() => handleDeleteMedicine(med.id)}>Удалить</button>
-                      </div>
-                    )}
-                  </div>
+        {/* Правая часть */}
+        <main className="inventory-main">
+          <div className="inventory-title-row">
+            <h1 className="inventory-title">{selectedKitName}</h1>
+            <div className="kit-members">
+              {kitMembers.map(member => (
+                <div key={member.id} className="member-avatar" title={member.full_name}>
+                  {member.avatar_url
+                    ? <img src={member.avatar_url} alt={member.full_name} />
+                    : <div className="avatar-placeholder">{member.full_name?.[0] || '?'}</div>
+                  }
+                  {member.is_owner && <img src={crownIcon} alt="Owner" className="owner-crown" />}
                 </div>
               ))}
             </div>
+          </div>
 
-            {hoveredMedicine && (
-              <div className="medicine-preview">
-                {hoveredMedicine.image_url && (
-                  <img src={hoveredMedicine.image_url} alt={hoveredMedicine.name} className="preview-image" />
-                )}
-                <h3>{hoveredMedicine.name}</h3>
-                {hoveredMedicine.expiry_date && (
-                  <p className="expiry-date">Срок годности: {new Date(hoveredMedicine.expiry_date).toLocaleDateString('ru-RU')}</p>
-                )}
-              </div>
-            )}
+          {/* Фильтры */}
+          <div className="category-filters">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat.value}
+                className={`category-chip ${activeCategory === cat.value ? 'active' : ''}`}
+                onClick={() => setActiveCategory(cat.value)}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
 
-            {showAddForm && (
-              <div className="modal-overlay" onClick={() => setShowAddForm(false)}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                  <div className="modal-header">
-                    <h2>Добавить лекарство</h2>
-                    <button className="modal-close" onClick={() => setShowAddForm(false)}>×</button>
+          <h2 className="medicines-title">Все таблетки в аптечке</h2>
+
+          {/* Сетка карточек */}
+          <div className="medicines-grid">
+            {filteredMedicines.map(med => (
+              <div key={med.id} className="medicine-card">
+                <button className="btn-edit" onClick={() => setShowMenu(showMenu === med.id ? null : med.id)}>
+                  <img src={penIcon} alt="Edit" />
+                </button>
+                {showMenu === med.id && (
+                  <div className="action-menu">
+                    <button onClick={() => alert('Редактирование в разработке')}>Редактировать</button>
+                    <button onClick={() => handleDeleteMedicine(med.id)}>Удалить</button>
                   </div>
-                  <form onSubmit={handleAddMedicine} className="add-medicine-form">
-                    <select
-                      value={selectedKit || ''}
-                      onChange={(e) => setSelectedKit(e.target.value)}
-                      required
-                    >
-                      <option value="" disabled>Выберите аптечку</option>
-                      {aptechkas.map(kit => (
-                        <option key={kit.id} value={kit.id}>{kit.name}</option>
-                      ))}
-                    </select>
-                    <input
-                      type="text"
-                      placeholder="Название лекарства"
-                      value={newMedicine.name}
-                      onChange={(e) => setNewMedicine({...newMedicine, name: e.target.value})}
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="Дозировка (напр. 500 мг)"
-                      value={newMedicine.dose}
-                      onChange={(e) => setNewMedicine({...newMedicine, dose: e.target.value})}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Количество"
-                      value={newMedicine.quantity}
-                      onChange={(e) => setNewMedicine({...newMedicine, quantity: parseInt(e.target.value)})}
-                      min="1"
-                    />
-                    <select
-                      value={newMedicine.category}
-                      onChange={(e) => setNewMedicine({...newMedicine, category: e.target.value})}
-                    >
-                      <option value="cold">От простуды</option>
-                      <option value="pain">От боли</option>
-                      <option value="allergy">От аллергии</option>
-                      <option value="stomach">Для желудка</option>
-                      <option value="heart">Для сердца</option>
-                      <option value="immunity">Для иммунитета</option>
-                      <option value="antistress">Антистресс</option>
-                      <option value="vitamins">Витамины</option>
-                      <option value="antiviral">Противовирусные</option>
-                      <option value="other">Другое</option>
-                    </select>
-                    <input
-                      type="date"
-                      placeholder="Срок годности"
-                      value={newMedicine.expiry_date}
-                      onChange={(e) => setNewMedicine({...newMedicine, expiry_date: e.target.value})}
-                    />
-                    <label className="file-upload-label">
-                      <img src={imageIcon} alt="Upload" className="upload-icon" />
-                      <span>Загрузить фото</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setNewMedicine({...newMedicine, image: e.target.files[0]})}
-                        style={{display: 'none'}}
-                      />
-                    </label>
-                    {newMedicine.image && <span className="file-name">{newMedicine.image.name}</span>}
-                    <button type="submit" className="btn-submit">Добавить</button>
-                  </form>
+                )}
+                {med.image_url
+                  ? <img src={med.image_url} alt={med.name} className="medicine-image" />
+                  : <div className="medicine-icon">{med.icon}</div>
+                }
+                <div className="medicine-info">
+                  <div className="medicine-dose-row">
+                    <span>{med.dose}</span>
+                    <div className="medicine-dose-divider"></div>
+                    <span className="quantity-badge">
+                      <img src={pullIcon} alt="" className="pull-icon" /> {med.quantity} шт
+                    </span>
+                  </div>
+                  <h3>{med.name}</h3>
+                  <p>{CATEGORIES.find(c => c.value === med.category)?.label || med.category}</p>
                 </div>
               </div>
-            )}
+            ))}
+
+            {/* Кнопка добавить */}
+            <div className="medicine-card medicine-card-add" onClick={() => setShowAddForm(true)}>
+              <span className="add-plus">+</span>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Модалка добавления */}
+      {showAddForm && (
+        <div className="modal-overlay" onClick={() => setShowAddForm(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Добавить лекарство</h2>
+              <button className="modal-close" onClick={() => setShowAddForm(false)}>×</button>
+            </div>
+            <form onSubmit={handleAddMedicine} className="add-medicine-form">
+              <select value={selectedKit || ''} onChange={e => setSelectedKit(e.target.value)} required>
+                <option value="" disabled>Выберите аптечку</option>
+                {aptechkas.map(kit => <option key={kit.id} value={kit.id}>{kit.name}</option>)}
+              </select>
+              <input type="text" placeholder="Название лекарства" value={newMedicine.name} onChange={e => setNewMedicine({...newMedicine, name: e.target.value})} required />
+              <input type="text" placeholder="Дозировка (напр. 500 мг)" value={newMedicine.dose} onChange={e => setNewMedicine({...newMedicine, dose: e.target.value})} />
+              <input type="number" placeholder="Количество" value={newMedicine.quantity} onChange={e => setNewMedicine({...newMedicine, quantity: parseInt(e.target.value)})} min="1" />
+              <select value={newMedicine.category} onChange={e => setNewMedicine({...newMedicine, category: e.target.value})}>
+                <option value="pain">Обезболивающие</option>
+                <option value="fever">Жаропонижающие</option>
+                <option value="allergy">Противоаллергическое</option>
+                <option value="antiviral">Противовирусные</option>
+                <option value="vitamins">Витамины и минералы</option>
+                <option value="antistress">Психотропные</option>
+                <option value="stomach">Для желудка</option>
+                <option value="other">Другое</option>
+              </select>
+              <input type="date" value={newMedicine.expiry_date} onChange={e => setNewMedicine({...newMedicine, expiry_date: e.target.value})} />
+              <label className="file-upload-label">
+                <img src={imageIcon} alt="Upload" className="upload-icon" />
+                <span>Загрузить фото</span>
+                <input type="file" accept="image/*" onChange={e => setNewMedicine({...newMedicine, image: e.target.files[0]})} style={{display:'none'}} />
+              </label>
+              {newMedicine.image && <span className="file-name">{newMedicine.image.name}</span>}
+              <button type="submit" className="btn-submit">Добавить</button>
+            </form>
           </div>
         </div>
-      </div>
+      )}
+
       <Footer />
     </>
   );
