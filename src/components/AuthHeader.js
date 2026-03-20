@@ -12,6 +12,7 @@ function AuthHeader() {
   const [prevInviteCount, setPrevInviteCount] = useState(0);
   const [medicineCount, setMedicineCount] = useState(0);
   const [prevMedicineCount, setPrevMedicineCount] = useState(0);
+  const [navOpen, setNavOpen] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -170,7 +171,8 @@ function AuthHeader() {
         <div className="logo" onClick={() => navigate('/')}>
           <img src={logo} alt="Цифровая аптечка" />
         </div>
-        <nav className="auth-nav">
+        <button className="auth-hamburger" onClick={() => setNavOpen(o => !o)}>☰</button>
+        <nav className={`auth-nav${navOpen ? ' open' : ''}`}>
           <button 
             className={location.pathname === '/inventory' ? 'active' : ''} 
             onClick={() => navigate('/inventory')}

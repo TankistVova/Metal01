@@ -87,7 +87,6 @@ function Inventory() {
     if (!user) { navigate('/login'); return; }
     setUser(user);
     await loadAptechkas(user.id);
-
     setLoading(false);
   };
 
@@ -208,6 +207,22 @@ function Inventory() {
   return (
     <>
       <AuthHeader />
+
+      {/* Мобильный список аптечек — вне inventory-page */}
+      <div className="mobile-kit-list">
+        {aptechkas.map(kit => (
+          <button
+            key={kit.id}
+            className={`mobile-kit-btn ${selectedKit === kit.id ? 'active' : ''}`}
+            onClick={() => setSelectedKit(kit.id)}
+          >
+            <img src={avatarIcons[kit.avatar] || homeIcon} alt="" />
+            {kit.name}
+          </button>
+        ))}
+        <button className="mobile-kit-btn mobile-kit-add" onClick={() => navigate('/create-aptechka')}>+ Добавить</button>
+      </div>
+
       <div className="inventory-page">
         {/* Левая панель */}
         <aside className="inventory-sidebar">
@@ -245,7 +260,6 @@ function Inventory() {
             </div>
           </div>
 
-          {/* Фильтры */}
           <div className="category-filters">
             {CATEGORIES.map(cat => (
               <button
@@ -260,7 +274,6 @@ function Inventory() {
 
           <h2 className="medicines-title">Все таблетки в аптечке</h2>
 
-          {/* Сетка карточек */}
           <div className="medicines-grid">
             {filteredMedicines.map(med => (
               <div key={med.id} className="medicine-card">
@@ -290,8 +303,6 @@ function Inventory() {
                 </div>
               </div>
             ))}
-
-            {/* Кнопка добавить */}
             <div className="medicine-card medicine-card-add" onClick={() => setShowAddForm(true)}>
               <span className="add-plus">+</span>
             </div>
@@ -299,7 +310,6 @@ function Inventory() {
         </main>
       </div>
 
-      {/* Модалка добавления */}
       {showAddForm && (
         <div className="modal-overlay" onClick={() => setShowAddForm(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>

@@ -11,6 +11,7 @@
   min-width: 260px;
   padding: 32px 20px;
   border-right: 1px solid #f0f0f0;
+  flex-shrink: 0;
 }
 
 .sidebar-title {
@@ -458,7 +459,61 @@
 .upload-icon { width: 20px; height: 20px; }
 .file-name { font-size: 12px; color: #666; }
 
-/* Загрузка — стили в src/components/LoadingScreen.css */
+/* Мобильный список аптечек */
+.mobile-kit-list {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-kit-list {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    scrollbar-width: none;
+  }
+
+  .mobile-kit-list::-webkit-scrollbar { display: none; }
+
+  .mobile-kit-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .mobile-kit-btn img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+  }
+
+  .mobile-kit-btn.active {
+    background: #30BACB;
+    border-color: #30BACB;
+    color: #fff;
+  }
+
+  .mobile-kit-add {
+    border-style: dashed;
+    color: #666;
+  }
+
+  .mobile-kit-add:hover {
+    border-color: #30BACB;
+    color: #30BACB;
+  }
+}
+
 
 /* Интро */
 .inventory-intro {
@@ -567,8 +622,106 @@
 .intro-phone-qr { position: absolute; top: 50%; left: 75%; width: 300px; height: 250px; object-fit: contain; }
 
 @media (max-width: 768px) {
-  .inventory-sidebar { display: none; }
-  .inventory-main { padding: 20px; }
-  .medicines-grid { gap: 12px; }
-  .medicine-card { width: 160px; height: auto; }
+  .inventory-sidebar {
+    display: none !important;
+    width: 0;
+    min-width: 0;
+  }
+
+  .inventory-main {
+    padding: 16px;
+  }
+
+  .inventory-title-row {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .inventory-title {
+    font-size: 22px;
+  }
+
+  .category-filters {
+    gap: 6px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .category-chip {
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 5px 12px;
+  }
+
+  .medicines-title {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  .medicines-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .medicine-card {
+    width: 100%;
+    height: auto;
+  }
+
+  .medicine-image {
+    height: 90px;
+  }
+
+  .medicine-icon {
+    height: 90px;
+    font-size: 32px;
+  }
+
+  .medicine-info h3 {
+    font-size: 13px;
+  }
+
+  .medicine-info p {
+    font-size: 11px;
+  }
+
+  .medicine-dose-row {
+    font-size: 11px;
+  }
+
+  /* Интро на мобиле */
+  .inventory-intro {
+    padding: 40px 24px;
+    align-items: center;
+  }
+
+  .intro-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    text-align: center;
+  }
+
+  .intro-left h1 {
+    font-size: 28px;
+    min-height: auto;
+  }
+
+  .intro-left p {
+    font-size: 15px;
+  }
+
+  .intro-right {
+    display: none !important;
+    animation: none;
+  }
+
+  /* Модалка */
+  .modal-content {
+    padding: 20px;
+    width: 95%;
+  }
 }
