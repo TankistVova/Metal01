@@ -139,6 +139,54 @@
   margin-left: 8px;
 }
 
+@media (max-width: 1440px) {
+  .auth-header-container {
+    padding: 12px 24px;
+  }
+
+  .auth-nav {
+    gap: 24px;
+  }
+
+  .auth-nav button {
+    font-size: 14px;
+  }
+
+  .btn-profile {
+    padding: 10px 22px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .auth-header-container {
+    padding: 10px 20px;
+  }
+
+  .logo img {
+    width: 120px;
+    height: 50px;
+  }
+
+  .auth-nav {
+    gap: 18px;
+  }
+
+  .auth-nav button {
+    font-size: 13px;
+  }
+
+  .btn-profile {
+    padding: 8px 18px;
+    font-size: 13px;
+  }
+
+  .btn-notifications {
+    width: 40px;
+    height: 40px;
+  }
+}
+
 @media (max-width: 768px) {
   .auth-header-container {
     flex-direction: row;

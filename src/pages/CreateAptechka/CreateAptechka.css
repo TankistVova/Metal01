@@ -1,234 +1,247 @@
-.create-aptechka {
-  min-height: 100vh;
-  background: #f8f9fa;
-  padding: 40px 20px;
-}
-
-.create-aptechka-container {
-  max-width: 800px;
-  margin: 0 auto;
-  background: white;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-
-.create-aptechka h1 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 40px;
-  font-size: 28px;
-}
-
-.aptechka-form {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-section h3 {
-  color: #333;
-  font-size: 20px;
-  margin: 0;
-}
-
-/* Аватарки */
-.avatar-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 15px;
-}
-
-.avatar-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: white;
-}
-
-.avatar-option:hover {
-  border-color: #00bcd4;
-  transform: translateY(-2px);
-}
-
-.avatar-option.selected {
-  border-color: #00bcd4;
-  background: #f0fdff;
-}
-
-.avatar-icon {
-  font-size: 32px;
-  margin-bottom: 8px;
-}
-
-.avatar-option span {
-  font-size: 14px;
-  color: #666;
-  text-align: center;
-}
-
-/* Поля ввода */
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.input-group label {
-  font-weight: 500;
-  color: #333;
-}
-
-.input-group input,
-.input-group textarea {
-  padding: 12px 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 0.3s ease;
-}
-
-.input-group input:focus,
-.input-group textarea:focus {
-  outline: none;
-  border-color: #00bcd4;
-}
-
-.input-group textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-/* Приглашения */
-.invite-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.invite-input {
-  display: flex;
-  gap: 10px;
-}
-
-.invite-input input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-.btn-add {
-  padding: 12px 20px;
-  background: #00bcd4;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s ease;
-}
-
-.btn-add:hover {
-  background: #00a5bb;
-}
-
-.invited-users {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.invited-users h4 {
-  margin: 0;
-  color: #333;
-  font-size: 16px;
-}
-
-.invited-user {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  background: #f0fdff;
-  border-radius: 8px;
-  border: 1px solid #00bcd4;
-}
-
-.invited-user span {
-  color: #333;
-}
-
-.btn-remove {
-  background: #ff4757;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
+.ca-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  transition: background 0.3s ease;
+  z-index: 1000;
 }
 
-.btn-remove:hover {
-  background: #ff3742;
+.ca-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px 20px 20px;
+  max-width: 520px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  position: relative;
 }
 
-/* Кнопка создания */
-.btn-create {
-  padding: 16px 32px;
-  background: #00bcd4;
+.ca-modal::-webkit-scrollbar { display: none; }
+
+.ca-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #aaa;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+
+.ca-close:hover { color: #333; }
+
+.ca-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: center;
+  margin: 0 0 24px;
+}
+
+.ca-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ca-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ca-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.ca-field input,
+.ca-field textarea {
+  padding: 12px 14px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.ca-field input:focus,
+.ca-field textarea:focus { border-color: #30BACB; }
+
+.ca-field input::placeholder,
+.ca-field textarea::placeholder { color: #bbb; }
+
+.ca-field textarea { resize: none; }
+
+/* Типы аптечек */
+.ca-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding-right: 2px;
+}
+
+.ca-avatar-grid::-webkit-scrollbar { display: none; }
+
+.ca-avatar-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  color: #555;
+}
+
+.ca-avatar-option:hover {
+  border-color: #30BACB;
+  color: #30BACB;
+}
+
+.ca-avatar-option.selected {
+  border-color: #30BACB;
+  background: #f0fdff;
+  color: #30BACB;
+}
+
+.ca-avatar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ca-avatar-icon svg {
+  width: 26px;
+  height: 26px;
+  color: #555;
+}
+
+.ca-avatar-option.selected .ca-avatar-icon svg {
+  color: #30BACB;
+}
+
+/* Приглашения */
+.ca-invite-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ca-invite-row input { flex: 1; }
+
+.ca-btn-add {
+  padding: 12px 16px;
+  background: #30BACB;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 500;
+  border-radius: 10px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background 0.3s ease;
-  margin-top: 20px;
+  white-space: nowrap;
+  transition: background 0.2s;
 }
 
-.btn-create:hover:not(:disabled) {
-  background: #00a5bb;
+.ca-btn-add:hover { background: #2aa8b8; }
+
+.ca-invited-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
 }
 
-.btn-create:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+.ca-invited-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f0fdff;
+  border-radius: 8px;
+  border: 1px solid #30BACB;
+  font-size: 13px;
+  color: #333;
 }
 
-/* Адаптивность */
+.ca-invited-item button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.ca-invited-item button:hover { color: #ff4444; }
+
+/* Кнопки */
+.ca-btn-submit {
+  width: 100%;
+  padding: 16px;
+  background: #30BACB;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background 0.2s;
+}
+
+.ca-btn-submit:hover:not(:disabled) { background: #2aa8b8; }
+.ca-btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+.ca-btn-cancel {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: #555;
+  cursor: pointer;
+  text-align: center;
+}
+
+.ca-btn-cancel:hover { color: #1a1a1a; }
+
 @media (max-width: 768px) {
-  .create-aptechka-container {
-    padding: 20px;
-    margin: 0 10px;
+  .ca-overlay { align-items: flex-end; }
+
+  .ca-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px 16px;
   }
-  
-  .avatar-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .invite-input {
-    flex-direction: column;
-  }
-  
-  .invite-input input {
-    margin-bottom: 10px;
-  }
+
+  .ca-avatar-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+  .ca-avatar-option { padding: 10px 6px; font-size: 12px; }
+
+  .ca-avatar-icon { font-size: 20px; }
+
+  .ca-invite-row { flex-direction: column; }
+
+  .ca-btn-add { width: 100%; }
+}
+
+@media (max-width: 375px) {
+  .ca-avatar-grid { grid-template-columns: repeat(2, 1fr); }
 }

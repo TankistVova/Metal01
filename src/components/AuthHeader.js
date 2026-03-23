@@ -26,6 +26,7 @@ function AuthHeader() {
     const interval = setInterval(() => {
       checkNewInvites();
       checkNewMedicines();
+      checkNewNotifications();
     }, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -162,6 +163,39 @@ function AuthHeader() {
       }
     } catch (err) {
       console.error('Error checking medicines:', err);
+    }
+  };
+
+  const checkNewNotifications = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('notifications')
+        .select('id, title, message, is_read')
+        .eq('user_id', user.id)
+        .eq('is_read', false)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (!data?.length) return;
+
+      const stored = JSON.parse(localStorage.getItem('shownNotifIds') || '[]');
+      const newOnes = data.filter(n => !stored.includes(n.id));
+
+      if (newOnes.length > 0 && Notification.permission === 'granted') {
+        newOnes.forEach(n => {
+          new Notification(n.title, {
+            body: n.message,
+            icon: '/logo192.png'
+          });
+        });
+        const updatedStored = [...stored, ...newOnes.map(n => n.id)].slice(-50);
+        localStorage.setItem('shownNotifIds', JSON.stringify(updatedStored));
+      }
+    } catch (err) {
+      console.error('Error checking notifications:', err);
     }
   };
 

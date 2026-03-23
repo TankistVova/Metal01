@@ -5,7 +5,6 @@ import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Profile from './pages/Profile/Profile';
 import Inventory from './pages/Inventory/Inventory';
-import CreateAptechka from './pages/CreateAptechka/CreateAptechka.jsx';
 import InviteAccept from './pages/CreateAptechka/InviteAccept.jsx';
 import Footer from './components/Footer';
 import icon1 from './asset/icons/icon-medkit.png'
@@ -77,7 +76,7 @@ function HomePage() {
               <h1>Технологичный Подход<br />К Вашей Аптечке</h1>
               <p>Ваш помощник, который упрощает контроль<br />и организацию медицинских запасов.</p>
               <br/>
-              <button className="btn-primary" onClick={scrollToRegistration}>Зарегистрироваться</button>
+              <button className="btn-primary" onClick={() => window.location.href = '/register'}>Зарегистрироваться</button>
             </div>
             <div className="hero-right">
               <div className="phone-container">
@@ -243,27 +242,15 @@ function HomePage() {
 
       {/* Registration Section */}
       <section className="registration scroll-animate">
+        <div className="pills-wrapper">
+          {['💊','🩺','💉','🩹','💊','🩺','💉','🩹'].map((icon, i) => (
+            <span key={i} className="pill-float" style={{'--i': i}}>{icon}</span>
+          ))}
+        </div>
         <div className="registration-container">
           <div className="section-label">Регистрация</div>
           <h2>Для использования системы необходимо <br/>зарегистрироваться</h2>
-          <p>Заполните все необходимые поля</p>
-          <form className="registration-form">
-            <div className="form-row">
-              <div className="input-wrapper">
-                <div className="input-icon fio"></div>
-                <input type="text" placeholder="ФИО" />
-              </div>
-              <div className="input-wrapper">
-                <div className="input-icon email"></div>
-                <input type="email" placeholder="E-mail" />
-              </div>
-              <div className="input-wrapper">
-                <div className="input-icon phone"></div>
-                <input type="tel" placeholder="Тел" />
-              </div>
-            </div>
-            <button type="submit" className="btn-primary">Зарегистрироваться</button>
-          </form>
+          <button className="btn-primary" onClick={() => window.location.href = '/register'}>Зарегистрироваться</button>
         </div>
       </section>
 
@@ -288,7 +275,6 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/inventory" element={<Inventory />} />
-      <Route path="/create-aptechka" element={<CreateAptechka />} />
       <Route path="/invites" element={<InviteAccept />} />
     </Routes>
     </>

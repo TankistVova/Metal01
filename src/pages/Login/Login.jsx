@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import eyeIcon from '../../asset/icons/eye.png';
+import logoReg from '../../asset/auth/Logo Reg-Auto.png';
 import './Login.css';
 
 function Login() {
@@ -46,6 +47,7 @@ function Login() {
         <div className="auth-container">
           <div className="form-main">
             <div className="form-header">
+              <img src={logoReg} alt="Logo" className="auth-logo" />
               <h2 className="form-title">Вход в аккаунт</h2>
             </div>
 

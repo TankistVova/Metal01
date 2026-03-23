@@ -115,11 +115,26 @@
   color: #2C3E50;
 }
 
-@media (max-width: 768px) {
-  .navbar {
-    position: fixed;
-    height: 60px;
+@media (max-width: 1366px) {
+  .navbar-container {
+    padding: 12px 24px;
   }
+
+  .menu {
+    gap: 20px;
+  }
+
+  .menu a {
+    font-size: 13px;
+  }
+
+  .logo img {
+    width: 120px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 768px) {
 
   .navbar-container {
     padding: 8px 15px;

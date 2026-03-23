@@ -48,13 +48,19 @@ body, html {
 
 .form-header {
   width: 100%;
-  height: 54px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 16px;
+}
+
+.auth-logo {
+  width: 436.5px;
+  height: 186px;
+  object-fit: contain;
+  max-width: 100%;
 }
 
 .form-title {
@@ -292,11 +298,48 @@ body, html {
   filter: brightness(0) saturate(100%) invert(67%) sepia(14%) saturate(748%) hue-rotate(130deg) brightness(92%) contrast(86%);
 }
 
-@media (max-width: 768px) {
-  .image-side {
-    display: none;
+@media (max-width: 1440px) {
+  .auth-container {
+    width: 35%;
+    min-width: 380px;
   }
 
+  .image-side {
+    width: 65%;
+  }
+
+  .auth-logo {
+    width: 320px;
+    height: auto;
+  }
+}
+
+@media (max-width: 1366px) {
+  .auth-container {
+    width: 38%;
+    min-width: 360px;
+  }
+
+  .image-side {
+    width: 62%;
+  }
+
+  .field-input,
+  .password-input {
+    height: 44px;
+  }
+
+  .register-btn {
+    height: 42px;
+  }
+
+  .auth-logo {
+    width: 280px;
+    height: auto;
+  }
+}
+
+@media (max-width: 768px) {
   .auth-container {
     width: 100%;
     align-items: center;
@@ -307,5 +350,10 @@ body, html {
 
   .form-main {
     justify-content: center;
+  }
+
+  .auth-logo {
+    width: 240px;
+    height: auto;
   }
 }

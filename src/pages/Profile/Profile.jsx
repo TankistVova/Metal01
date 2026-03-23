@@ -17,6 +17,11 @@ function Profile() {
     checkUser();
   }, []);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
+
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -96,6 +101,7 @@ function Profile() {
               <strong>{user?.user_metadata?.phone || 'Не указано'}</strong>
             </div>
           </div>
+          <button className="btn-logout" onClick={handleLogout}>Выйти из аккаунта</button>
         </div>
       </div>
       <Footer />

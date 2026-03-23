@@ -42,7 +42,7 @@
   background: #30BACB;
 }
 
-.sidebar-item.active .sidebar-btn {
+.sidebar-item.active .sidebar-icon svg {
   color: #fff;
 }
 
@@ -69,9 +69,16 @@
 }
 
 .sidebar-icon {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-icon svg {
+  width: 18px;
+  height: 18px;
+  color: #555;
 }
 
 .sidebar-delete {
@@ -398,70 +405,521 @@
   overflow-y: auto;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+/* Новая форма добавления лекарства */
+.add-medicine-modal {
+  padding: 24px 20px 20px;
+  max-width: 540px;
+  width: 95%;
+  position: relative;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
-.modal-header h2 { margin: 0; font-size: 20px; }
+.add-medicine-modal::-webkit-scrollbar {
+  display: none;
+}
 
-.modal-close {
+.am-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: 22px;
+  color: #aaa;
   cursor: pointer;
-  color: #666;
+  line-height: 1;
+  padding: 4px;
+}
+
+.am-modal-close:hover { color: #333; }
+
+.add-modal-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: center;
+  margin: 0 0 24px;
 }
 
 .add-medicine-form {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+/* Фото */
+.am-photo-row {
+  display: flex;
+  align-items: center;
   gap: 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
 }
 
-.add-medicine-form input,
-.add-medicine-form select {
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+.am-photo-clickable {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.am-photo-delete-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0 14px 0 0;
+  line-height: 1;
+}
+
+.am-photo-delete-btn:hover { color: #ff4444; }
+
+.am-photo-preview {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.am-photo-preview img:not(.am-photo-placeholder) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.am-photo-icon {
+  font-size: 22px;
+  opacity: 0.4;
+}
+
+.am-photo-placeholder {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.5;
+}
+
+.am-photo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.am-photo-label {
   font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
 }
 
-.add-medicine-form input:focus,
-.add-medicine-form select:focus {
+.am-photo-sub {
+  font-size: 12px;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.am-upload-icon {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+  opacity: 0.5;
+}
+
+.am-photo-menu-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.am-photo-menu {
+  position: absolute;
+  right: 12px;
+  top: 52px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  overflow: hidden;
+  z-index: 10;
+  min-width: 130px;
+}
+
+.am-photo-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  text-align: left;
+  background: white;
+  border: none;
+  cursor: pointer;
+  color: #1a1a1a;
+}
+
+.am-photo-menu-item:hover { background: #f5f5f5; }
+.am-photo-upload { color: #1a1a1a; }
+.am-photo-delete { color: #aaa; }
+
+/* Поля */
+.am-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.am-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.am-field input,
+.am-field textarea {
+  padding: 12px 14px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
   outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.am-field input:focus,
+.am-field textarea:focus {
   border-color: #30BACB;
 }
 
-.btn-submit {
-  padding: 12px;
+.am-field input::placeholder,
+.am-field textarea::placeholder {
+  color: #bbb;
+}
+
+.am-field textarea {
+  resize: none;
+}
+
+/* Строка с двумя полями */
+.am-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Инпут + единица */
+.am-input-unit {
+  display: flex;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.am-input-unit input {
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  padding: 12px 14px;
+}
+
+.am-input-unit input:focus {
+  border: none;
+  outline: none;
+}
+
+.am-input-unit select {
+  border: none;
+  border-left: 1px solid #e8e8e8;
+  background: #fff;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+}
+
+/* Категория */
+.am-select-wrap {
+  position: relative;
+}
+
+.am-select-wrap select {
+  width: 100%;
+  padding: 12px 36px 12px 14px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.am-select-wrap select:focus {
+  border-color: #30BACB;
+}
+
+/* Дата */
+.am-date-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.am-date-wrap input[type="date"] {
+  width: 100%;
+  padding: 12px 40px 12px 14px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+}
+
+.am-date-wrap input[type="date"]:focus {
+  border-color: #30BACB;
+}
+
+.am-date-wrap input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+/* Напоминания */
+.am-reminder-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.am-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.am-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.am-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #ccc;
+  border-radius: 24px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.am-toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.am-toggle input:checked + .am-toggle-slider {
+  background: #30BACB;
+}
+
+.am-toggle input:checked + .am-toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* Кнопки */
+.am-btn-submit {
+  width: 100%;
+  padding: 16px;
   background: #30BACB;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  margin-top: 4px;
+  transition: background 0.2s;
 }
 
-.file-upload-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+.am-btn-submit:hover { background: #2aa8b8; }
+
+.am-btn-cancel {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: #555;
   cursor: pointer;
+  text-align: center;
 }
 
-.upload-icon { width: 20px; height: 20px; }
-.file-name { font-size: 12px; color: #666; }
+.am-btn-cancel:hover { color: #1a1a1a; }
 
 /* Мобильный список аптечек */
 .mobile-kit-list {
   display: none;
+}
+
+@media (max-width: 1440px) {
+  .inventory-sidebar {
+    width: 220px;
+    min-width: 220px;
+    padding: 24px 16px;
+  }
+
+  .inventory-main {
+    padding: 24px 28px;
+  }
+
+  .inventory-title {
+    font-size: 26px;
+  }
+
+  .intro-left h1 {
+    font-size: 38px;
+  }
+
+  .intro-phone {
+    width: 460px;
+    height: 520px;
+  }
+
+  .intro-phone-content {
+    width: 250px;
+    height: 483px;
+  }
+
+  .intro-phone-air {
+    width: 490px;
+    height: 410px;
+  }
+
+  .intro-phone-qr {
+    width: 240px;
+    height: 200px;
+  }
+
+  .add-medicine-modal {
+    max-width: 480px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .inventory-sidebar {
+    width: 200px;
+    min-width: 200px;
+    padding: 20px 14px;
+  }
+
+  .inventory-main {
+    padding: 20px 22px;
+  }
+
+  .inventory-title {
+    font-size: 22px;
+  }
+
+  .medicine-card {
+    width: 185px;
+  }
+
+  .intro-left h1 {
+    font-size: 32px;
+    min-height: auto;
+  }
+
+  .intro-left p {
+    font-size: 16px;
+  }
+
+  .intro-phone {
+    width: 400px;
+    height: 452px;
+  }
+
+  .intro-phone-content {
+    width: 218px;
+    height: 421px;
+  }
+
+  .intro-phone-bangs {
+    width: 96px;
+    height: 27px;
+  }
+
+  .intro-phone-air {
+    width: 426px;
+    height: 356px;
+  }
+
+  .intro-phone-qr {
+    width: 214px;
+    height: 178px;
+  }
+
+  .add-medicine-modal {
+    max-width: 440px;
+    padding: 20px 16px 16px;
+  }
+
+  .add-modal-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .am-field input,
+  .am-field textarea,
+  .am-input-unit input,
+  .am-select-wrap select,
+  .am-date-wrap input[type="date"] {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .am-btn-submit {
+    padding: 14px;
+    font-size: 15px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -491,10 +949,18 @@
     flex-shrink: 0;
   }
 
-  .mobile-kit-btn img {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
+  .mobile-kit-icon {
+    display: flex;
+    align-items: center;
+  }
+
+  .mobile-kit-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .mobile-kit-btn.active .mobile-kit-icon svg {
+    color: #fff;
   }
 
   .mobile-kit-btn.active {
@@ -723,5 +1189,60 @@
   .modal-content {
     padding: 20px;
     width: 95%;
+  }
+
+  .add-medicine-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px 16px;
+    margin-top: auto;
+  }
+
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .add-modal-title {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .add-medicine-form {
+    gap: 12px;
+  }
+
+  .am-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .am-field input,
+  .am-field textarea,
+  .am-input-unit input,
+  .am-select-wrap select,
+  .am-date-wrap input[type="date"] {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .am-photo-preview {
+    width: 40px;
+    height: 40px;
+  }
+
+  .am-photo-label {
+    font-size: 13px;
+  }
+
+  .am-btn-submit {
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  .am-btn-cancel {
+    font-size: 14px;
+    padding: 8px;
   }
 }

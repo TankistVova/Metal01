@@ -10,14 +10,20 @@ import phoneContent from '../../asset/phone/phone-content.png';
 import phoneAirContent from '../../asset/phone/phone-air-content.png';
 import phoneAirQr from '../../asset/phone/phone-air-qr.png';
 import phoneBangs from '../../asset/phone/phone-bangs.png';
-import homeIcon from '../../asset/fontMedKit/Home.png';
-import carIcon from '../../asset/fontMedKit/Car.png';
-import babyIcon from '../../asset/fontMedKit/Baby.png';
-import globeIcon from '../../asset/fontMedKit/Globe.png';
-import imageIcon from '../../asset/icons/image.png';
+import uploadIcon from '../../asset/icons/upload-01.png';
+import photoIcon from '../../asset/icons/photo.png';
 import pullIcon from '../../asset/icons/Pull.png';
 import penIcon from '../../asset/icons/Pen.png';
 import crownIcon from '../../asset/icons/crown.png';
+import CreateAptechka from '../CreateAptechka/CreateAptechka.jsx';
+import {
+  FaHome, FaCar, FaBaby, FaPlane, FaRunning, FaBriefcase,
+  FaHeart, FaDog, FaFirstAid, FaSnowflake, FaMountain, FaUmbrellaBeach,
+  FaBicycle, FaSwimmer, FaDumbbell, FaMotorcycle, FaShip, FaTrain,
+  FaUserMd, FaChild, FaUsers, FaUser, FaStar, FaLeaf
+} from 'react-icons/fa';
+import { GiCampingTent, GiMedicalPack } from 'react-icons/gi';
+import { MdSportsSoccer, MdOutdoorGrill } from 'react-icons/md';
 
 const CATEGORIES = [
   { value: 'all', label: 'Все' },
@@ -38,9 +44,11 @@ function Inventory() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [kitMembers, setKitMembers] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showMenu, setShowMenu] = useState(null);
   const [newMedicine, setNewMedicine] = useState({
-    name: '', dose: '', quantity: 1, icon: '💊', category: 'pain', expiry_date: '', image: null
+    name: '', dose: '', doseUnit: 'мг', quantity: 1, quantityUnit: 'шт', icon: '💊', category: 'pain',
+    expiry_date: '', note: '', image: null
   });
   const [showIntro, setShowIntro] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
@@ -48,7 +56,14 @@ function Inventory() {
   const navigate = useNavigate();
 
   const avatarIcons = {
-    home: homeIcon, travel: globeIcon, kids: babyIcon, car: carIcon, work: homeIcon, sport: globeIcon
+    home: <FaHome />, car: <FaCar />, kids: <FaBaby />, travel: <FaPlane />,
+    sport: <FaRunning />, work: <FaBriefcase />, health: <FaHeart />, pets: <FaDog />,
+    firstaid: <FaFirstAid />, winter: <FaSnowflake />, mountain: <FaMountain />,
+    beach: <FaUmbrellaBeach />, bike: <FaBicycle />, swim: <FaSwimmer />,
+    gym: <FaDumbbell />, moto: <FaMotorcycle />, ship: <FaShip />, train: <FaTrain />,
+    doctor: <FaUserMd />, child: <FaChild />, family: <FaUsers />, personal: <FaUser />,
+    camping: <GiCampingTent />, medpack: <GiMedicalPack />, soccer: <MdSportsSoccer />,
+    outdoor: <MdOutdoorGrill />, star: <FaStar />, nature: <FaLeaf />
   };
 
   useEffect(() => {
@@ -81,6 +96,11 @@ function Inventory() {
   useEffect(() => {
     if (selectedKit) { loadMedicines(selectedKit); loadKitMembers(selectedKit); }
   }, [selectedKit]);
+
+  useEffect(() => {
+    document.body.style.overflow = (showAddForm || showCreateModal) ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [showAddForm, showCreateModal]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -122,13 +142,14 @@ function Inventory() {
         imageUrl = data.publicUrl;
       }
     }
+    const dose = newMedicine.dose ? `${newMedicine.dose} ${newMedicine.doseUnit}` : '';
     const { error } = await supabase.from('medicines').insert([{
-      aptechka_id: selectedKit, name: newMedicine.name, dose: newMedicine.dose,
+      aptechka_id: selectedKit, name: newMedicine.name, dose,
       quantity: newMedicine.quantity, icon: newMedicine.icon, category: newMedicine.category,
       expiry_date: newMedicine.expiry_date || null, image_url: imageUrl
     }]);
     if (!error) {
-      setNewMedicine({ name: '', dose: '', quantity: 1, icon: '💊', category: 'pain', expiry_date: '', image: null });
+      setNewMedicine({ name: '', dose: '', doseUnit: 'мг', quantity: 1, quantityUnit: 'шт', icon: '💊', category: 'pain', expiry_date: '', note: '', image: null });
       setShowAddForm(false);
       loadMedicines(selectedKit);
     }
@@ -208,7 +229,6 @@ function Inventory() {
     <>
       <AuthHeader />
 
-      {/* Мобильный список аптечек — вне inventory-page */}
       <div className="mobile-kit-list">
         {aptechkas.map(kit => (
           <button
@@ -216,34 +236,32 @@ function Inventory() {
             className={`mobile-kit-btn ${selectedKit === kit.id ? 'active' : ''}`}
             onClick={() => setSelectedKit(kit.id)}
           >
-            <img src={avatarIcons[kit.avatar] || homeIcon} alt="" />
+            <span className="mobile-kit-icon">{avatarIcons[kit.avatar] || <FaHome />}</span>
             {kit.name}
           </button>
         ))}
-        <button className="mobile-kit-btn mobile-kit-add" onClick={() => navigate('/create-aptechka')}>+ Добавить</button>
+        <button className="mobile-kit-btn mobile-kit-add" onClick={() => setShowCreateModal(true)}>+ Добавить</button>
       </div>
 
       <div className="inventory-page">
-        {/* Левая панель */}
         <aside className="inventory-sidebar">
           <h3 className="sidebar-title">Аптечки</h3>
           <ul className="sidebar-list">
             {aptechkas.map(kit => (
               <li key={kit.id} className={`sidebar-item ${selectedKit === kit.id ? 'active' : ''}`}>
                 <button className="sidebar-btn" onClick={() => setSelectedKit(kit.id)}>
-                  <img src={avatarIcons[kit.avatar] || homeIcon} alt="" className="sidebar-icon" />
+                  <span className="sidebar-icon">{avatarIcons[kit.avatar] || <FaHome />}</span>
                   {kit.name}
                 </button>
                 <button className="sidebar-delete" onClick={() => handleDeleteAptechka(kit.id)}>×</button>
               </li>
             ))}
-            <li className="sidebar-item sidebar-add" onClick={() => navigate('/create-aptechka')}>
+            <li className="sidebar-item sidebar-add" onClick={() => setShowCreateModal(true)}>
               <span>+</span> Добавить аптечку
             </li>
           </ul>
         </aside>
 
-        {/* Правая часть */}
         <main className="inventory-main">
           <div className="inventory-title-row">
             <h1 className="inventory-title">{selectedKitName}</h1>
@@ -312,40 +330,97 @@ function Inventory() {
 
       {showAddForm && (
         <div className="modal-overlay" onClick={() => setShowAddForm(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Добавить лекарство</h2>
-              <button className="modal-close" onClick={() => setShowAddForm(false)}>×</button>
-            </div>
+          <div className="modal-content add-medicine-modal" onClick={e => e.stopPropagation()}>
+            <h2 className="add-modal-title">Добавление лекарства</h2>
+            <button className="am-modal-close" type="button" onClick={() => setShowAddForm(false)}>×</button>
             <form onSubmit={handleAddMedicine} className="add-medicine-form">
-              <select value={selectedKit || ''} onChange={e => setSelectedKit(e.target.value)} required>
-                <option value="" disabled>Выберите аптечку</option>
-                {aptechkas.map(kit => <option key={kit.id} value={kit.id}>{kit.name}</option>)}
-              </select>
-              <input type="text" placeholder="Название лекарства" value={newMedicine.name} onChange={e => setNewMedicine({...newMedicine, name: e.target.value})} required />
-              <input type="text" placeholder="Дозировка (напр. 500 мг)" value={newMedicine.dose} onChange={e => setNewMedicine({...newMedicine, dose: e.target.value})} />
-              <input type="number" placeholder="Количество" value={newMedicine.quantity} onChange={e => setNewMedicine({...newMedicine, quantity: parseInt(e.target.value)})} min="1" />
-              <select value={newMedicine.category} onChange={e => setNewMedicine({...newMedicine, category: e.target.value})}>
-                <option value="pain">Обезболивающие</option>
-                <option value="fever">Жаропонижающие</option>
-                <option value="allergy">Противоаллергическое</option>
-                <option value="antiviral">Противовирусные</option>
-                <option value="vitamins">Витамины и минералы</option>
-                <option value="antistress">Психотропные</option>
-                <option value="stomach">Для желудка</option>
-                <option value="other">Другое</option>
-              </select>
-              <input type="date" value={newMedicine.expiry_date} onChange={e => setNewMedicine({...newMedicine, expiry_date: e.target.value})} />
-              <label className="file-upload-label">
-                <img src={imageIcon} alt="Upload" className="upload-icon" />
-                <span>Загрузить фото</span>
-                <input type="file" accept="image/*" onChange={e => setNewMedicine({...newMedicine, image: e.target.files[0]})} style={{display:'none'}} />
-              </label>
-              {newMedicine.image && <span className="file-name">{newMedicine.image.name}</span>}
-              <button type="submit" className="btn-submit">Добавить</button>
+
+              <div className="am-photo-row">
+                <label className="am-photo-clickable">
+                  <div className="am-photo-preview">
+                    {newMedicine.image
+                      ? <img src={URL.createObjectURL(newMedicine.image)} alt="preview" />
+                      : <img src={photoIcon} alt="photo" className="am-photo-placeholder" />
+                    }
+                  </div>
+                  <div className="am-photo-info">
+                    <span className="am-photo-label">{newMedicine.image ? newMedicine.image.name : 'Нет фотографии'}</span>
+                    <span className="am-photo-sub"><img src={uploadIcon} alt="" className="am-upload-icon" /> Loading whit phone</span>
+                  </div>
+                  <input type="file" accept="image/*" onChange={e => setNewMedicine({...newMedicine, image: e.target.files[0]})} style={{display:'none'}} />
+                </label>
+                {newMedicine.image && (
+                  <button type="button" className="am-photo-delete-btn" onClick={() => setNewMedicine({...newMedicine, image: null})}>×</button>
+                )}
+              </div>
+
+              <div className="am-field">
+                <label>Название</label>
+                <input type="text" placeholder="Название" value={newMedicine.name} onChange={e => setNewMedicine({...newMedicine, name: e.target.value})} required />
+              </div>
+
+              <div className="am-row">
+                <div className="am-field">
+                  <label>Дозировка</label>
+                  <div className="am-input-unit">
+                    <input type="text" placeholder="Дозировка" value={newMedicine.dose} onChange={e => setNewMedicine({...newMedicine, dose: e.target.value})} />
+                    <select value={newMedicine.doseUnit} onChange={e => setNewMedicine({...newMedicine, doseUnit: e.target.value})}>
+                      <option>мг</option><option>мл</option><option>г</option><option>МЕ</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="am-field">
+                  <label>Количество</label>
+                  <div className="am-input-unit">
+                    <input type="number" placeholder="Количество" value={newMedicine.quantity} onChange={e => setNewMedicine({...newMedicine, quantity: parseInt(e.target.value) || 1})} min="1" />
+                    <select value={newMedicine.quantityUnit} onChange={e => setNewMedicine({...newMedicine, quantityUnit: e.target.value})}>
+                      <option>шт</option><option>уп</option><option>мл</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="am-field">
+                <label>Категория</label>
+                <div className="am-select-wrap">
+                  <select value={newMedicine.category} onChange={e => setNewMedicine({...newMedicine, category: e.target.value})}>
+                    <option value="">Категория</option>
+                    <option value="pain">Обезболивающие</option>
+                    <option value="fever">Жаропонижающие</option>
+                    <option value="allergy">Противоаллергическое</option>
+                    <option value="antiviral">Противовирусные</option>
+                    <option value="vitamins">Витамины и минералы</option>
+                    <option value="antistress">Психотропные</option>
+                    <option value="stomach">Для желудка</option>
+                    <option value="other">Другое</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="am-field">
+                <label>Срок годности</label>
+                <div className="am-date-wrap">
+                  <input type="date" value={newMedicine.expiry_date} onChange={e => setNewMedicine({...newMedicine, expiry_date: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="am-field">
+                <label>Примечание/инструкция</label>
+                <textarea placeholder="Примечание/инструкция..." value={newMedicine.note} onChange={e => setNewMedicine({...newMedicine, note: e.target.value})} rows={4} />
+              </div>
+
+              <button type="submit" className="am-btn-submit">Добавить</button>
+              <button type="button" className="am-btn-cancel" onClick={() => setShowAddForm(false)}>Отмена</button>
             </form>
           </div>
         </div>
+      )}
+
+      {showCreateModal && (
+        <CreateAptechka
+          onClose={() => setShowCreateModal(false)}
+          onCreated={() => { loadAptechkas(user.id); setShowCreateModal(false); }}
+        />
       )}
 
       <Footer />

@@ -111,12 +111,44 @@
   background: #00a5bb;
 }
 
+.btn-logout {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  background: #e53935;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-logout:hover {
+  background: #c62828;
+}
+
 .loading {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   font-size: 20px;
+}
+
+@media (max-width: 1366px) {
+  .profile-container {
+    padding: 28px;
+  }
+
+  .profile-container h1 {
+    font-size: 24px;
+  }
+
+  .avatar {
+    width: 120px;
+    height: 120px;
+  }
 }
 
 @media (max-width: 768px) {
