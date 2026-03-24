@@ -1,0 +1,362 @@
+.calendar-page {
+  min-height: calc(100vh - 70px);
+  background: #fff;
+  font-family: 'Inter', sans-serif;
+  padding: 32px 40px;
+}
+
+.calendar-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Левая часть */
+.calendar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cal-month-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.cal-nav-btn {
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.cal-nav-btn:hover {
+  border-color: #30BACB;
+  color: #30BACB;
+}
+
+/* Сетка */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-day-name {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaa;
+  padding: 6px 0;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+  gap: 2px;
+}
+
+.cal-day:hover:not(.empty) {
+  background: #f0f9fb;
+}
+
+.cal-day.empty {
+  cursor: default;
+}
+
+.cal-day.today {
+  background: #e6f7f9;
+  color: #30BACB;
+  font-weight: 600;
+}
+
+.cal-day.selected {
+  background: #30BACB;
+  color: #fff;
+  font-weight: 600;
+}
+
+.cal-day.selected .cal-dot {
+  background: #fff;
+}
+
+.cal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #30BACB;
+}
+
+.cal-day.selected .cal-dot {
+  background: rgba(255,255,255,0.8);
+}
+
+/* Список расписаний */
+.schedules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.schedules-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.schedules-list-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.btn-add-schedule {
+  padding: 7px 16px;
+  background: #30BACB;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-add-schedule:hover {
+  background: #2aa8b8;
+}
+
+.no-schedules {
+  font-size: 14px;
+  color: #aaa;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.schedule-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.schedule-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.schedule-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.schedule-time {
+  font-size: 12px;
+  color: #888;
+}
+
+.schedule-delete {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #ccc;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.schedule-delete:hover {
+  color: #ff4444;
+}
+
+/* Правая часть — день */
+.calendar-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 90px;
+}
+
+.day-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.no-meds-today {
+  font-size: 14px;
+  color: #aaa;
+  padding: 30px 0;
+  text-align: center;
+}
+
+.day-med-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid #e8e8e8;
+  border-radius: 14px;
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.day-med-card.taken {
+  background: #f0fafb;
+  border-color: #b2e4ea;
+}
+
+.day-med-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.day-med-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.day-med-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.day-med-time {
+  font-size: 13px;
+  color: #888;
+}
+
+.btn-taken {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-taken:hover {
+  border-color: #30BACB;
+  color: #30BACB;
+}
+
+.btn-taken.active {
+  background: #30BACB;
+  border-color: #30BACB;
+  color: #fff;
+}
+
+/* Модалка */
+.cal-modal {
+  max-width: 420px;
+  width: 95%;
+}
+
+/* Выбор дней */
+.days-picker {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.day-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.day-btn:hover {
+  border-color: #30BACB;
+  color: #30BACB;
+}
+
+.day-btn.active {
+  background: #30BACB;
+  border-color: #30BACB;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .calendar-page {
+    padding: 16px;
+  }
+
+  .calendar-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .calendar-right {
+    position: static;
+  }
+
+  .cal-day {
+    font-size: 13px;
+  }
+
+  .day-title {
+    font-size: 18px;
+  }
+
+  .cal-modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .modal-overlay {
+    align-items: flex-end;
+  }
+}

@@ -4,6 +4,7 @@ import logo from '../asset/logo.svg';
 import mailIcon from '../asset/icons/icon-mail-reg.png';
 import './AuthHeader.css';
 import { useState, useEffect } from 'react';
+import { initNotifications } from '../swUtils';
 
 function AuthHeader() {
   const navigate = useNavigate();
@@ -23,18 +24,44 @@ function AuthHeader() {
     loadInviteCount();
     loadMedicineCount();
     requestNotificationPermission();
+    initScheduledNotifications();
+
+    const handleSWMessage = async (event) => {
+      if (event.data?.type === 'MEDICINE_REMINDER') {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        await supabase.from('notifications').insert([{
+          user_id: user.id,
+          type: 'medicine_taken',
+          title: 'Напоминание о приёме',
+          message: `Время принять ${event.data.medicineName} — ${event.data.time}`,
+          is_read: false
+        }]);
+      }
+    };
+    navigator.serviceWorker?.addEventListener('message', handleSWMessage);
+
     const interval = setInterval(() => {
       checkNewInvites();
       checkNewMedicines();
       checkNewNotifications();
     }, 10000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      navigator.serviceWorker?.removeEventListener('message', handleSWMessage);
+    };
   }, []);
 
   const requestNotificationPermission = async () => {
     if ('Notification' in window && Notification.permission === 'default') {
       await Notification.requestPermission();
     }
+  };
+
+  const initScheduledNotifications = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await initNotifications(user.id, supabase);
   };
 
   const checkNewInvites = async () => {
@@ -205,31 +232,27 @@ function AuthHeader() {
         <div className="logo" onClick={() => navigate('/')}>
           <img src={logo} alt="Цифровая аптечка" />
         </div>
-        <button className="auth-hamburger" onClick={() => setNavOpen(o => !o)}>☰</button>
         <nav className={`auth-nav${navOpen ? ' open' : ''}`}>
           <button 
             className={location.pathname === '/inventory' ? 'active' : ''} 
-            onClick={() => navigate('/inventory')}
+            onClick={() => { navigate('/inventory'); setNavOpen(false); }}
           >
             Инвентарь
           </button>
           <button 
-            className={location.pathname === '/add-medicine' ? 'active' : ''} 
-            onClick={() => {
-              if (location.pathname === '/inventory') {
-                window.dispatchEvent(new Event('openAddMedicine'));
-              } else {
-                navigate('/inventory');
-              }
-            }}
-          >
-            Добавить лекарства
-          </button>
-          <button 
             className={location.pathname === '/calendar' ? 'active' : ''} 
-            onClick={() => navigate('/calendar')}
+            onClick={() => { navigate('/calendar'); setNavOpen(false); }}
           >
             Календарь уведомлений
+          </button>
+          <button className="nav-mobile-invites" onClick={() => { navigate('/invites'); setNavOpen(false); }}>
+            Уведомления {inviteCount > 0 && <span className="nav-badge">{inviteCount}</span>}
+          </button>
+          <button 
+            className={`nav-mobile-profile ${location.pathname === '/profile' ? 'active' : ''}`}
+            onClick={() => { navigate('/profile'); setNavOpen(false); }}
+          >
+            Мой профиль
           </button>
         </nav>
         <div className="header-actions">
@@ -247,6 +270,7 @@ function AuthHeader() {
             Мой профиль
           </button>
         </div>
+        <button className="auth-hamburger" onClick={() => setNavOpen(o => !o)}>☰</button>
       </div>
     </header>
   );

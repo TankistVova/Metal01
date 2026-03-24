@@ -293,6 +293,9 @@ function Inventory() {
           <h2 className="medicines-title">Все таблетки в аптечке</h2>
 
           <div className="medicines-grid">
+            <div className="medicine-card medicine-card-add" onClick={() => setShowAddForm(true)}>
+              <span className="add-plus">+</span>
+            </div>
             {filteredMedicines.map(med => (
               <div key={med.id} className="medicine-card">
                 <button className="btn-edit" onClick={() => setShowMenu(showMenu === med.id ? null : med.id)}>
@@ -321,9 +324,6 @@ function Inventory() {
                 </div>
               </div>
             ))}
-            <div className="medicine-card medicine-card-add" onClick={() => setShowAddForm(true)}>
-              <span className="add-plus">+</span>
-            </div>
           </div>
         </main>
       </div>

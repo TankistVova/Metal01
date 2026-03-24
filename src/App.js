@@ -6,6 +6,7 @@ import Register from './pages/Register/Register';
 import Profile from './pages/Profile/Profile';
 import Inventory from './pages/Inventory/Inventory';
 import InviteAccept from './pages/CreateAptechka/InviteAccept.jsx';
+import Calendar from './pages/Calendar/Calendar.jsx';
 import Footer from './components/Footer';
 import icon1 from './asset/icons/icon-medkit.png'
 import icon2 from './asset/icons/icon-personal.png'
@@ -276,6 +277,7 @@ function App() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/inventory" element={<Inventory />} />
       <Route path="/invites" element={<InviteAccept />} />
+      <Route path="/calendar" element={<Calendar />} />
     </Routes>
     </>
   );
