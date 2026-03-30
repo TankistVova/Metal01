@@ -4,7 +4,7 @@ import { supabase } from '../../supabaseClient';
 import AuthHeader from '../../components/AuthHeader';
 import Footer from '../../components/Footer';
 import LoadingScreen from '../../components/LoadingScreen';
-import { requestNotificationPermission, sendSchedulesToSW, initNotifications, refreshNotifications } from '../../swUtils';
+import { refreshNotifications } from '../../swUtils';
 import './Calendar.css';
 
 const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];

@@ -37,6 +37,11 @@ function AuthHeader() {
           message: `Время принять ${event.data.medicineName} — ${event.data.time}`,
           is_read: false
         }]);
+        return;
+      }
+
+      if (event.data?.type === 'PUSH_SUBSCRIPTION_CHANGE') {
+        await initScheduledNotifications();
       }
     };
     navigator.serviceWorker?.addEventListener('message', handleSWMessage);

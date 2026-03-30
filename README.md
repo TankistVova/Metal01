@@ -1,70 +1,80 @@
-# Getting Started with Create React App
+# Aptechka
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React-приложение с Supabase и браузерными уведомлениями о приеме лекарств.
 
-## Available Scripts
+## Основные команды
 
-In the project directory, you can run:
+```bash
+npm start
+npm run build
+npm test
+```
 
-### `npm start`
+## Web Push
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+В проект добавлена полноценная заготовка для push-уведомлений, которые могут приходить даже при закрытом сайте.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 1. Сгенерировать VAPID-ключи
 
-### `npm test`
+```bash
+npm run push:keys
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Сохрани значения в `.env`:
 
-### `npm run build`
+```env
+REACT_APP_VAPID_PUBLIC_KEY=...
+SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
+VAPID_PUBLIC_KEY=...
+VAPID_PRIVATE_KEY=...
+VAPID_SUBJECT=mailto:admin@example.com
+PUSH_TIMEZONE=Europe/Moscow
+PUSH_POLL_INTERVAL_MS=60000
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 2. Подготовить таблицы в Supabase
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Выполни SQL из [supabase_push_setup.sql](./supabase_push_setup.sql).
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 3. Пересобрать фронтенд
 
-### `npm run eject`
+Публичный VAPID-ключ должен попасть в сборку:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm run build
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Если используешь Docker, `REACT_APP_VAPID_PUBLIC_KEY` уже пробрасывается через `Dockerfile` и `docker-compose.yml`.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 4. Запустить отправку push-уведомлений
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Разовая проверка:
 
-## Learn More
+```bash
+npm run push:send
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Постоянный воркер:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm run push:worker
+```
 
-### Code Splitting
+Или запускай `npm run push:send` каждую минуту через cron/systemd timer.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Как это работает
 
-### Analyzing the Bundle Size
+- фронтенд регистрирует `service worker`
+- браузер подписывается на Web Push
+- подписка сохраняется в таблицу `push_subscriptions`
+- скрипт `scripts/sendPushReminders.js` ищет расписания на текущую минуту
+- скрипт отправляет push во все активные подписки пользователя
+- `public/sw.js` показывает системное уведомление
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Важные условия
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- сайт должен открываться по `HTTPS`
+- для серверной отправки нужен `SUPABASE_SERVICE_ROLE_KEY`
+- `push-worker` должен быть запущен отдельно от nginx-контейнера со статикой
+- текущая реализация использует одну таймзону через `PUSH_TIMEZONE`

@@ -4,12 +4,24 @@ services:
   web:
     build:
       context: .
+      target: web
       args:
         REACT_APP_SUPABASE_URL: ${REACT_APP_SUPABASE_URL}
         REACT_APP_SUPABASE_ANON_KEY: ${REACT_APP_SUPABASE_ANON_KEY}
+        REACT_APP_VAPID_PUBLIC_KEY: ${REACT_APP_VAPID_PUBLIC_KEY}
+    env_file:
+      - .env
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
+    restart: unless-stopped
+
+  push-worker:
+    build:
+      context: .
+      target: worker
+    env_file:
+      - .env
     restart: unless-stopped

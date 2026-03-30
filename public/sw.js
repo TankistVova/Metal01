@@ -1,93 +1,97 @@
-const CACHE_NAME = 'aptechka-sw-v1';
-
-// Храним расписание в памяти SW
 let schedules = [];
-let timers = [];
 
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 
-// Принимаем сообщения от приложения
+async function broadcastToClients(message) {
+  const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  clients.forEach((client) => client.postMessage(message));
+}
+
+async function showMedicineNotification(notification) {
+  await self.registration.showNotification(notification.title, {
+    body: notification.body,
+    icon: '/logo192.png',
+    badge: '/logo192.png',
+    tag: `med-${notification.scheduleId}`,
+    requireInteraction: true,
+    data: {
+      scheduleId: notification.scheduleId,
+      medicineName: notification.medicineName,
+      time: notification.time,
+      url: '/calendar'
+    },
+    actions: [
+      { action: 'taken', title: 'Принял' },
+      { action: 'dismiss', title: 'Закрыть' }
+    ]
+  });
+
+  await broadcastToClients({
+    type: 'MEDICINE_REMINDER',
+    scheduleId: notification.scheduleId,
+    medicineName: notification.medicineName,
+    time: notification.time
+  });
+}
+
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SET_SCHEDULES') {
     schedules = event.data.schedules || [];
-    resetTimers();
+    return;
+  }
+
+  if (event.data?.type === 'SHOW_NOTIFICATION' && event.data.notification) {
+    event.waitUntil(showMedicineNotification(event.data.notification));
   }
 });
 
-function resetTimers() {
-  timers.forEach(t => clearTimeout(t));
-  timers = [];
-  scheduleForToday();
-}
+self.addEventListener('push', (event) => {
+  const payload = event.data?.json() || {};
 
-function scheduleForToday() {
-  const now = new Date();
-  const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-  const todayKey = DAY_KEYS[now.getDay()];
+  event.waitUntil(showMedicineNotification({
+    title: payload.title || 'Время принять лекарство',
+    body: payload.body || 'Пора принять лекарство',
+    scheduleId: String(payload.scheduleId || payload.tag || 'push'),
+    medicineName: payload.medicineName || 'Лекарство',
+    time: payload.time || '',
+    url: payload.url || '/calendar'
+  }));
+});
 
-  schedules.forEach(s => {
-    if (!s.days?.[todayKey]) return;
-
-    const [h, m] = s.time.split(':').map(Number);
-    const notifTime = new Date();
-    notifTime.setHours(h, m, 0, 0);
-
-    const diff = notifTime - now;
-    console.log(`[SW] Schedule: ${s.medicineName} at ${s.time}, diff=${diff}ms`);
-    if (diff <= 0) {
-      console.log(`[SW] Skipped (already passed): ${s.medicineName}`);
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      // Уведомляем клиента чтобы он записал в активность
-      const clients = await self.clients.matchAll({ type: 'window' });
-      clients.forEach(c => c.postMessage({
-        type: 'MEDICINE_REMINDER',
-        scheduleId: s.id,
-        medicineName: s.medicineName,
-        time: s.time
-      }));
-
-      self.registration.showNotification('💊 Время принять лекарство', {
-        body: `${s.medicineName} — ${s.time}`,
-        icon: '/logo192.png',
-        badge: '/logo192.png',
-        tag: `med-${s.id}`,
-        requireInteraction: true,
-        actions: [
-          { action: 'taken', title: '✓ Принял' },
-          { action: 'dismiss', title: 'Закрыть' }
-        ]
-      });
-    }, diff);
-
-    timers.push(timer);
-  });
-
-  // Перезапускаем в полночь для следующего дня
-  const midnight = new Date();
-  midnight.setHours(24, 0, 0, 0);
-  const tillMidnight = midnight - now;
-  const midnightTimer = setTimeout(() => {
-    scheduleForToday();
-  }, tillMidnight);
-  timers.push(midnightTimer);
-}
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil(broadcastToClients({ type: 'PUSH_SUBSCRIPTION_CHANGE' }));
+});
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  if (event.action === 'taken') {
-    event.waitUntil(
-      self.clients.matchAll({ type: 'window' }).then(clients => {
-        if (clients.length > 0) {
-          clients[0].focus();
-          clients[0].postMessage({ type: 'MARK_TAKEN', scheduleId: event.notification.tag.replace('med-', '') });
-        } else {
-          self.clients.openWindow('/calendar');
-        }
-      })
-    );
+
+  if (event.action === 'dismiss') {
+    return;
   }
+
+  const notificationData = event.notification.data || {};
+  const targetUrl = notificationData.url || '/calendar';
+
+  event.waitUntil((async () => {
+    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const existingClient = clients.find((client) => 'focus' in client);
+
+    if (existingClient) {
+      await existingClient.focus();
+      if ('navigate' in existingClient && existingClient.url !== targetUrl) {
+        await existingClient.navigate(targetUrl);
+      }
+
+      if (event.action === 'taken' && notificationData.scheduleId) {
+        existingClient.postMessage({
+          type: 'MARK_TAKEN',
+          scheduleId: String(notificationData.scheduleId)
+        });
+      }
+      return;
+    }
+
+    await self.clients.openWindow(targetUrl);
+  })());
 });
