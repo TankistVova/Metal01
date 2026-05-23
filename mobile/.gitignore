@@ -1,0 +1,17 @@
+node_modules
+.expo
+.expo-shared
+dist
+dist-apk
+dist-doc-check
+dist-android-check
+dist-android-check-2
+dist-android-local-check
+dist-android-crash-check
+dist-android-expo-build
+android__prebuild_backup
+web-build
+npm-debug.*
+.env
+credentials.json
+android/keystores/

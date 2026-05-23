@@ -1,0 +1,351 @@
+.notif-page {
+  min-height: calc(100vh - 70px);
+  background: #f8f9fb;
+  padding: 40px 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.notif-container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Заголовок */
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.notif-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notif-mark-all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #f0fdff;
+  border: 1px solid #30BACB;
+  border-radius: 10px;
+  color: #30BACB;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.notif-mark-all:hover {
+  background: #30BACB;
+  color: white;
+}
+
+.notif-header-icon {
+  width: 52px;
+  height: 52px;
+  background: #30BACB;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.notif-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+}
+
+.notif-header p {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+}
+
+/* Табы */
+.notif-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: white;
+  padding: 6px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.notif-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.notif-tab svg {
+  font-size: 15px;
+}
+
+.notif-tab:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.notif-tab.active {
+  background: #30BACB;
+  color: white;
+}
+
+.notif-tab-badge {
+  background: #ff4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.notif-tab.active .notif-tab-badge {
+  background: white;
+  color: #ff4444;
+}
+
+/* Список */
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Карточка */
+.notif-card {
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.notif-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.notif-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.invite-icon {
+  background: #e8f7f9;
+  color: #30BACB;
+}
+
+.activity-icon {
+  background: #fff3e0;
+  color: #f59e0b;
+}
+
+.notif-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.notif-card-top h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.notif-card-top-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.notif-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #30BACB;
+  flex-shrink: 0;
+}
+
+/* Непрочитанная карточка */
+.notif-card.unread {
+  border-left: 3px solid #30BACB;
+  cursor: pointer;
+  background: #f8feff;
+}
+
+.notif-card.unread:hover {
+  background: #f0fdff;
+}
+
+.notif-time {
+  font-size: 12px;
+  color: #aaa;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.notif-card-body p {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+/* Кнопки приглашения */
+.invite-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-accept,
+.btn-decline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-accept {
+  background: #30BACB;
+  color: white;
+}
+
+.btn-accept:hover { background: #2aa8b8; }
+
+.btn-decline {
+  background: #f5f5f5;
+  color: #888;
+}
+
+.btn-decline:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Пустое состояние */
+.notif-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.notif-empty-icon {
+  font-size: 52px;
+  color: #d1d5db;
+  margin-bottom: 16px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.notif-empty h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+}
+
+.notif-empty p {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+  .notif-page {
+    padding: 20px 16px;
+  }
+
+  .notif-header h1 {
+    font-size: 20px;
+  }
+
+  .notif-header-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .invite-btns {
+    flex-direction: column;
+  }
+
+  .btn-accept,
+  .btn-decline {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .notif-tab {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 375px) {
+  .notif-tabs {
+    gap: 4px;
+  }
+
+  .notif-tab {
+    font-size: 12px;
+    padding: 8px 6px;
+    gap: 4px;
+  }
+}

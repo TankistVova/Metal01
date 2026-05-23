@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "Aptechka Mobile",
+    "slug": "aptechka-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "scheme": "aptechka",
+    "icon": "./assets/app/icon.png",
+    "splash": {
+      "image": "./assets/app/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#31BACB"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aptechka.mobile"
+    },
+    "android": {
+      "package": "com.aptechka.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/app/adaptive-icon.png",
+        "backgroundColor": "#31BACB"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": [
+      "expo-notifications"
+    ],
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/app/favicon.png"
+    },
+    "extra": {
+      "projectName": "Aptechka Mobile",
+      "eas": {
+        "projectId": "db7f8dc9-ae57-4dee-977c-41be28e92eb4"
+      }
+    },
+    "owner": "tankistvova"
+  }
+}
